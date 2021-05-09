@@ -6,7 +6,4 @@ class Lexem:
         self.value = value
 
     def print_parameters(self):
-        if self.type != "end":
-            return '{}:{}        {}        "{}"        {}'.format(self.coordinate[0], self.coordinate[1], self.type, self.text, self.value)
-        else:
-            return ""
+        return '{}:{}        {}        "{}"        {}'.format(self.coordinate[0], self.coordinate[1], self.type, self.text, self.value)
