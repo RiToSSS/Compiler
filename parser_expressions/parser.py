@@ -10,6 +10,8 @@ class Parser:
         self.lexer.get_lexem()
 
     def parser_expr(self):
+        if self.lexer.current_lexem().get_value() == "" or self.lexer.current_lexem().get_type() == States.separator.value:
+            raise RuntimeError ("expression was expected")
         left = self.parser_term()
         operation = self.lexer.current_lexem()
         while operation.get_value() == "+" or operation.get_value() == "-":

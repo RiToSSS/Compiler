@@ -13,12 +13,11 @@ class Lexer:
         self.separators = {".", ",", ":", ";", "[", "]", "(", ")"}
         self.spaces = {' ', '\n', '\t', '\0', '\r'}
         self.operations = {"+=", "-=", "*=", "/=", '+', '-', '*', '/', '=', '<', '>', "**", ">=", "<="}
-        self.predefined = {
+        self.reserved = {
             "abs", "arctan", "boolean", "char", "chr", "cos", "dispose", "eoln", "exp",
             "false", "get", "input", "integer", "ln", "maxint", "new", "odd", "ord", "output",
             "pack", "page", "pred", "put", "read", "readln", "real", "reset", "rewrite", "round",
-            "sin", "sqr", "sqrt", "succ", "text", "true", "trunc", "unpack", "write", "writeln"}
-        self.reserved = {
+            "sin", "sqr", "sqrt", "succ", "text", "true", "trunc", "unpack", "write", "writeln",
             "and", "array", "asm", "begin", "case", "const", "consatructor", "destructor", "div", "do",
             "downto", "else", "end", "exports", "file", "for", "function", "goto", "if", "implementation",
             "in", "inherited", "inline", "interface", "label", "library", "mod", "nil", "not", "object",
@@ -98,9 +97,6 @@ class Lexer:
                  else :
                      if self.buff.lower() in self.reserved:
                          type_lexem = States.reserved
-
-                     elif self.buff.lower() in self.predefined:
-                         type_lexem = States.predefined
 
                      else:
                          type_lexem = States.identifier
