@@ -1,4 +1,5 @@
 from parser_expressions.binary_operation_node import BinOperNode
+from parser_expressions.unary_operation_node import UnOperNode
 from parser_expressions.identifier_node import IdentifierNode
 from parser_expressions.int_node import IntNode
 from parser_expressions.real_node import RealNode
@@ -10,7 +11,7 @@ class Parser:
         self.lexer.get_lexem()
 
     def parser_expr(self):
-        if self.lexer.current_lexem().get_value() == "" or self.lexer.current_lexem().get_type() == States.separator.value:
+        if self.lexer.current_lexem().get_value() == "":
             raise RuntimeError ("expression was expected")
         left = self.parser_term()
         operation = self.lexer.current_lexem()
@@ -47,4 +48,6 @@ class Parser:
                 raise RuntimeError(") was expected")
             self.lexer.get_lexem()
             return left
+        if lexem.get_value() in {"+", "-"}:
+            return UnOperNode(lexem, self.parser_factor())
         raise RuntimeError("Unexpected", lexem.get_text)

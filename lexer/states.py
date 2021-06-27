@@ -12,3 +12,4 @@ class States (Enum):
     error = "error"
     reserved = "reserved"
     predefined = "predefined"
+    int_16 = "int_16"

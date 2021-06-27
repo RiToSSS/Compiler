@@ -11,7 +11,7 @@ class Lexer:
         self.line = 1
         self.coordinates = [1, 1]
         self.separators = {".", ",", ":", ";", "[", "]", "(", ")"}
-        self.spaces = {' ', '\n', '\t', '\0', '\r'}
+        self.spaces = {' ', '\n', '\t', '\0', '\r', ""}
         self.operations = {"+=", "-=", "*=", "/=", '+', '-', '*', '/', '=', '<', '>', "**", ">=", "<="}
         self.reserved = {
             "abs", "arctan", "boolean", "char", "chr", "cos", "dispose", "eoln", "exp",
@@ -60,6 +60,12 @@ class Lexer:
                  elif self.text.isdigit():
                     self.buffer(self.text)
                     self.state = States.integer
+                    self.save_coordinate()
+                    self.get_symbol()
+
+                 elif self.text == "$":
+                    self.buffer(self.text)
+                    self.state =States.int_16
                     self.save_coordinate()
                     self.get_symbol()
 
@@ -126,6 +132,26 @@ class Lexer:
                         self.lexem = Lexem(self.coordinates, States.integer.value, self.buff, int(self.buff))
                         return self.lexem
 
+             elif self.state == States.int_16:
+
+                 if self.text.isalpha():
+                     if (self.text <= "f") and (self.text >= "a"):
+                         self.buffer(self.text)
+                         self.get_symbol()
+
+                     else:
+                         self.state = States.error
+
+                 elif self.text.isdigit():
+                     self.buffer()
+                     self.get_symbol()
+
+                 else:
+                     self.state = States.null
+                     self.lexem = Lexem(self.coordinates, States.int_16.value, self.buff, int(self.buff[1:], 16))
+                     return self.lexem
+
+
              elif self.state == States.real:
 
                  if self.text.isdigit():
@@ -183,6 +209,7 @@ class Lexer:
              elif self.state == States.error:
                  if self.text in self.spaces or self.text in self.separators:
                      raise RuntimeError(f'{self.coordinates[0]}:{self.coordinates[1]}        Unexpected symbol in "{self.buff}"')
+                 self.buffer(self.text)
                  self.get_symbol()
 
 

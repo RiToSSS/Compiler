@@ -12,8 +12,12 @@ if test[0].lower() == "compiler":
 
         if test[2] == "-F":
             lex = Lexer(test[3])
-            while lex.text != "":
-                print(lex.get_lexem().print_parameters())
+            try:
+                while lex.text != "":
+                    print(lex.get_lexem().print_parameters())
+
+            except RuntimeError as error:
+                print(error)
 
         elif test[2] == "-D":
             if os.path.isdir(test[3]):
