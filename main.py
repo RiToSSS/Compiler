@@ -13,8 +13,10 @@ if test[0].lower() == "compiler":
         if test[2] == "-F":
             lex = Lexer(test[3])
             try:
+                lexem = lex.get_lexem()
                 while lex.text != "":
-                    print(lex.get_lexem().print_parameters())
+                    print(lexem.print_parameters())
+                    lexem = lex.get_lexem()
 
             except RuntimeError as error:
                 print(error)
@@ -31,13 +33,14 @@ if test[0].lower() == "compiler":
                         lex = Lexer(os.path.join("lexer", "tests", file))
                         flag = True
                         try:
+                            point = lex.get_lexem().print_parameters()
                             while lex.text != "":
-                                point = lex.get_lexem().print_parameters()
                                 if point != file_answer.readline().replace("\n", ""):
                                     flag = False
                                     not_pass += 1
                                     print(point)
                                     break
+                                point = lex.get_lexem().print_parameters()
                         except RuntimeError as error:
                             error = str(error)
                             if error != file_answer.readline().replace("\n", ""):

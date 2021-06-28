@@ -133,23 +133,18 @@ class Lexer:
                         return self.lexem
 
              elif self.state == States.int_16:
-
-                 if self.text.isalpha():
-                     if (self.text <= "f") and (self.text >= "a"):
-                         self.buffer(self.text)
-                         self.get_symbol()
-
-                     else:
-                         self.state = States.error
-
-                 elif self.text.isdigit():
-                     self.buffer()
-                     self.get_symbol()
-
-                 else:
-                     self.state = States.null
-                     self.lexem = Lexem(self.coordinates, States.int_16.value, self.buff, int(self.buff[1:], 16))
-                     return self.lexem
+                if self.text.isdigit():
+                    self.buffer(self.text)
+                    self.get_symbol()
+                elif (self.text.lower() <= "f") and (self.text.lower() >= "a"):
+                    self.buffer(self.text)
+                    self.get_symbol()
+                elif self.text.isalpha():
+                    self.state = States.error
+                else:
+                    self.state = States.null
+                    self.lexem = Lexem(self.coordinates, States.integer.value, self.buff, int(self.buff[1:], 16))
+                    return self.lexem
 
 
              elif self.state == States.real:
@@ -158,15 +153,47 @@ class Lexer:
                      self.buffer(self.text)
                      self.get_symbol()
 
-                 else:
-                     if self.text.isalpha():
+                 elif self.text.lower() == "e":
+                     if self.buff[len(self.buff)-1] == ".":
                          self.state = States.error
+                     else:
+                         self.state = States.real_e
+                     self.buffer(self.text)
+                     self.get_symbol()
+
+                 elif self.text.isalpha():
+                     self.state = States.error
+                     self.buffer(self.text)
+                     self.get_symbol()
+
+                 else:
+                     self.state = States.null
+                     self.lexem = Lexem(self.coordinates, States.real.value, self.buff, float(self.buff))
+                     return self.lexem
+
+             elif self.state == States.real_e:
+
+                 if self.text in {"+", "-"}:
+                     if self.buff[len(self.buff)-1].lower() == "e":
                          self.buffer(self.text)
                          self.get_symbol()
-                     else:
+                     elif not self.buff[len(self.buff)-1].lower() in {"+", "-"}:
                          self.state = States.null
                          self.lexem = Lexem(self.coordinates, States.real.value, self.buff, float(self.buff))
                          return self.lexem
+                     else:
+                         self.state = States.error
+                         self.buffer(self.text)
+                         self.get_symbol()
+
+                 elif self.text.isdigit():
+                     self.buffer(self.text)
+                     self.get_symbol()
+
+                 else:
+                     self.state = States.null
+                     self.lexem = Lexem(self.coordinates, States.real.value, self.buff, float(self.buff))
+                     return self.lexem
 
              elif self.state == States.string:
 
@@ -204,6 +231,9 @@ class Lexer:
                      self.index = 0
                      self.state = States.null
                      self.clean_buff()
+                 elif not self.text:
+                     self.state = States.null
+                     self.clean_buff()
                  self.get_symbol()
 
              elif self.state == States.error:
@@ -214,14 +244,5 @@ class Lexer:
 
 
          self.save_coordinate()
-         self.lexem = Lexem(self.coordinates, "eof", "", "")
+         self.lexem = Lexem(self.coordinates, "eof", "end of file", "")
          return self.lexem
-
-
-
-
-
-
-
-
-

@@ -50,4 +50,4 @@ class Parser:
             return left
         if lexem.get_value() in {"+", "-"}:
             return UnOperNode(lexem, self.parser_factor())
-        raise RuntimeError("Unexpected", lexem.get_text)
+        raise RuntimeError(f"Unexpected {lexem.get_text()}")

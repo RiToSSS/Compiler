@@ -6,6 +6,8 @@ class States (Enum):
     string = "string"
     identifier = "identifier"
     real = "real"
+    real_e = "real_e"
+    real_degree = "real_degree"
     operation = "operation"
     comment = "comment"
     separator = "separator"
