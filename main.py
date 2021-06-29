@@ -31,21 +31,22 @@ if test[1] == "-L":
                     file_answer = open(path_answer, "r", encoding="utf-8")
                     lex = Lexer(os.path.join("lexer", "tests", file))
                     flag = True
+                    point = ""
                     try:
-                        point = lex.get_lexem().print_parameters()
-                        while lex.text != "":
-                            if point != file_answer.readline().replace("\n", ""):
-                                flag = False
-                                not_pass += 1
-                                print(point)
-                                break
-                            point = lex.get_lexem().print_parameters()
-                    except RuntimeError as error:
-                        error = str(error)
-                        if error != file_answer.readline().replace("\n", ""):
+                        lexem = lex.get_lexem()
+                        point = lexem.print_parameters()
+                        while not lexem.eof():
+                            lexem = lex.get_lexem()
+                            point += "\n"+lexem.print_parameters() if not lexem.eof() else ""
+                        if point != file_answer.read():
                             flag = False
                             not_pass += 1
-                            print(error)
+
+                    except RuntimeError as error:
+                        error = point + "\n" + str(error) if point else str(error)
+                        if error != file_answer.read():
+                            flag = False
+                            not_pass += 1
                     if flag:
                         print(file, "- пройден")
                     else:

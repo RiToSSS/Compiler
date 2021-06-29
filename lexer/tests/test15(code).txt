@@ -1,2 +1,3 @@
+'the string #13 starts here '#13' and continues here'
 'the string #13 starts here '#13#10' and continues here'
 'the string #13 starts here '#10' and continues here'

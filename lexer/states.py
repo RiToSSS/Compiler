@@ -4,6 +4,7 @@ class States (Enum):
     integer = "integer"
     null = "null"
     string = "string"
+    string_literal = "string_literal"
     identifier = "identifier"
     real = "real"
     real_e = "real_e"

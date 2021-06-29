@@ -24,6 +24,31 @@ class Lexer:
             "of", "or", "packed", "procedure", "program", "record", "repeat", "set", "shl", "shr",
             "string", "then", "to", "type", "unit", "until", "uses", "var", "while", "with", "xor"}
 
+    def replace_code(self, string):
+        open = False
+        sharp = False
+        output = ""
+        buf = ""
+        s = 0
+        while s < len(string):
+            if sharp and string[s].isdigit():
+                buf += string[s]
+            elif sharp and not string[s].isdigit():
+                sharp = False
+                output += chr(int(buf))
+                buf = ""
+                s -= 1
+            elif string[s] == "'":
+                open = not open
+            elif string[s] == "#" and not open:
+                sharp = True
+            else:
+                output += string[s]
+            s += 1
+        if buf:
+            output += chr(int(buf))
+        return output
+
     def get_symbol (self):
         self.text = self.file.read(1)
         self.index += 1
@@ -213,8 +238,14 @@ class Lexer:
                      self.buffer(self.text)
                      self.get_symbol()
                      self.state = States.null
-                     self.lexem = Lexem(self.coordinates, States.string.value, self.buff, self.buff[1:-1])
-                     return self.lexem
+                     if self.text == "#":
+                         self.state = States.string_literal
+                         self.buffer(self.text)
+                         self.get_symbol()
+                     else:
+                         buff2 = self.replace_code(self.buff)
+                         self.lexem = Lexem(self.coordinates, States.string.value, self.buff, buff2)
+                         return self.lexem
 
                  elif self.text == "\n" or self.text == "":
                      self.state = States.error
@@ -222,6 +253,26 @@ class Lexer:
                  else:
                      self.buffer(self.text)
                      self.get_symbol()
+
+             elif self.state == States.string_literal:
+                 if self.text == "#" and self.buff[len(self.buff)-1].isdigit():
+                     self.buffer(self.text)
+                     self.get_symbol()
+                 elif self.text.isdigit():
+                     self.buffer(self.text)
+                     self.get_symbol()
+                 elif self.buff[len(self.buff)-1].isdigit() and self.text == "'":
+                     self.state = States.string
+                     self.buffer(self.text)
+                     self.get_symbol()
+                 else:
+                     self.state = States.null
+                     self.get_symbol()
+                     buff2 = self.replace_code(self.buff)
+                     self.lexem = Lexem(self.coordinates, States.string.value, self.buff, buff2)
+                     return self.lexem
+
+
 
              elif self.state == States.operation:
                  if self.buff + self.text in self.operations and self.text != "":
