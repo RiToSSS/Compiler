@@ -88,6 +88,10 @@ class Lexer:
                     self.get_symbol()
                     self.state = States.operation
 
+                 elif self.text == "{":
+                     self.get_symbol()
+                     self.state = States.comment_block
+
                  else:
                     self.state = States.error
                     self.buffer(self.text)
@@ -114,6 +118,11 @@ class Lexer:
              elif self.state == States.integer:
 
                  if self.text.isdigit():
+                     self.buffer(self.text)
+                     self.get_symbol()
+
+                 elif self.text.lower() == "e":
+                     self.state = States.real_e
                      self.buffer(self.text)
                      self.get_symbol()
 
@@ -191,9 +200,12 @@ class Lexer:
                      self.get_symbol()
 
                  else:
-                     self.state = States.null
-                     self.lexem = Lexem(self.coordinates, States.real.value, self.buff, float(self.buff))
-                     return self.lexem
+                     if self.buff[len(self.buff)-1].lower() == "e":
+                         self.state = States.error
+                     else:
+                         self.state = States.null
+                         self.lexem = Lexem(self.coordinates, States.real.value, self.buff, float(self.buff))
+                         return self.lexem
 
              elif self.state == States.string:
 
@@ -235,6 +247,19 @@ class Lexer:
                      self.state = States.null
                      self.clean_buff()
                  self.get_symbol()
+
+             elif self.state == States.comment_block:
+                 if self.text == "}":
+                     self.state = States.null
+                     self.get_symbol()
+                 elif self.text == "\n":
+                     self.line += 1
+                     self.index = 0
+                     self.get_symbol()
+                 else:
+                     self.get_symbol()
+                     if self.text == "":
+                        raise RuntimeError(f"{self.line}:{self.index}        " + "} was expected")
 
              elif self.state == States.error:
                  if self.text in self.spaces or self.text in self.separators:
